@@ -143,9 +143,13 @@ const calculatedHeatRatios = getHeatRatios(
 ```
 
 ```js
-const combinedHeatRatioData = [
-  ...Object.values(calculatedHeatRatios.data),
-].flat();
+const combinedHeatRatioData = [...Object.values(calculatedHeatRatios.data)]
+  .flat()
+  .map((d) => ({
+    ...d,
+    nodeId: d.nodeID,
+    meanHeatRatio: invert_heat_ratios ? 1 / d.meanHeatRatio : d.meanHeatRatio,
+  }));
 ```
 
 ```js
@@ -160,21 +164,51 @@ display(
     width,
     marginRight: 150,
     marks: [
-      Plot.dot(
-        combinedHeatRatioData.map((d) => ({
-          ...d,
-          meanHeatRatio: invert_heat_ratios
-            ? 1 / d.meanHeatRatio
-            : d.meanHeatRatio,
-        })),
-        {
-          x: 'date',
-          y: 'meanHeatRatio',
-          fy: 'nodeID',
-          tip: true,
-        }
-      ),
+      Plot.dot(combinedHeatRatioData, {
+        x: 'date',
+        y: 'meanHeatRatio',
+        fy: 'nodeId',
+        tip: true,
+      }),
     ],
+  })
+);
+```
+
+```js
+const blob = new Blob([d3.csvFormat(combinedHeatRatioData)], {
+  type: 'text/csv',
+});
+```
+
+```js
+view(
+  Inputs.button('Export data', {
+    reduce: () => {
+      // Step 1: Create an anchor element
+      const a = document.createElement('a');
+
+      // Step 2: Create a URL for the blob
+      const url = URL.createObjectURL(blob);
+
+      // Step 3: Set the href attribute of the anchor to the blob's URL
+      a.href = url;
+
+      // Step 4: Set the download attribute to the desired file name
+      a.download = 'mean_heat_ratio_data.csv';
+
+      // Step 5: Append the anchor to the document
+      document.body.appendChild(a);
+
+      // Step 6: Trigger a click on the anchor
+      a.click();
+
+      // Step 7: Remove the anchor from the document
+      document.body.removeChild(a);
+
+      // Clean up the URL object
+      URL.revokeObjectURL(url);
+    },
   })
 );
 ```
