@@ -98,7 +98,7 @@ display(
 ```
 
 <details>
-  <summary>Example</summary>
+  <summary>Example (click to expand)</summary>
   <p>Below, you can see that the temperature readings for both temperature sensors begin to decline at around 75000 milliseconds after the heat pulse has fired.</p>
   <img src="img/single_heat_pulse.png" style="max-width: 600px;" alt="Temperature readings for a single heat pulse.">
 </details>
@@ -180,7 +180,7 @@ display(
 ```
 
 <details>
-  <summary>Example</summary>
+  <summary>Example (click to expand)</summary>
   <p>Given a few days' worth of data, you should be able to see a diurnal pattern where the mean heat ratio values are:</p>
   <ul>
     <li>close to 1.0 during nighttime, when little/no transpiration takes place;</li>
