@@ -4,7 +4,7 @@ title: Sapflow Processor
 
 # Sapflow
 
-Exploratory dashboard
+Exploratory notebook for processing raw data from sapflow units. [Source code](https://github.com/dotmote/sapflow-processor).
 
 ## Attach data
 
