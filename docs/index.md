@@ -83,7 +83,11 @@ display(
         stroke: 'blue',
         opacity: 0.5,
         tip: true,
-        title: (d) => `millisSinceHeatPulse: ${d.millisSinceHeatPulse}`,
+        channels: {
+          millisSinceHeatPulse: "millisSinceHeatPulse",
+          x: "x",
+          y: "y",
+        },
       }),
       Plot.dot(input_data.slice(data_index_start, data_index_end), {
         x: (d) => new Date(d.rtcUnixTimestamp * 1000),
@@ -91,6 +95,11 @@ display(
         stroke: 'orange',
         opacity: 0.5,
         tip: true,
+        channels: {
+          millisSinceHeatPulse: "millisSinceHeatPulse",
+          x: "x",
+          y: "y",
+        },
       }),
     ],
   })
@@ -161,9 +170,11 @@ display(
     y: {
       grid: true,
     },
+    inset: 10,
     width,
     marginRight: 150,
     marks: [
+      Plot.frame(),
       Plot.dot(combinedHeatRatioData, {
         x: 'date',
         y: 'meanHeatRatio',
@@ -183,7 +194,7 @@ const blob = new Blob([d3.csvFormat(combinedHeatRatioData)], {
 
 ```js
 view(
-  Inputs.button('Export data', {
+  Inputs.button('Export mean heat ratio data', {
     reduce: () => {
       // Step 1: Create an anchor element
       const a = document.createElement('a');
@@ -229,6 +240,67 @@ view(
 
 ```js
 view(Inputs.table(combinedHeatRatioData));
+```
+
+## Filtering
+
+You can filter the data by date range and mean heat ratio values.
+
+```js
+const minDateInDataset = d3.min(Object.values(calculatedHeatRatios.data).flat(), d => d.date);
+```
+
+```js
+const maxDateInDataset = d3.max(Object.values(calculatedHeatRatios.data).flat(), d => d.date);
+```
+
+```js
+const heatRatioPlotStartDate = view(Inputs.date({ label: "Start date", value: minDateInDataset }));
+```
+
+```js
+const heatRatioPlotEndDate = view(Inputs.date({ label: "End date", value: maxDateInDataset }));
+```
+
+```js
+const filteredCombinedHeatRatioData = combinedHeatRatioData
+  .filter(d => (d.date >= heatRatioPlotStartDate || 0) && (d.date <= heatRatioPlotEndDate || 0))
+  .filter(d => d.meanHeatRatio <= maxMeanHeatRatioValueToPlot)
+  .filter(d => d.meanHeatRatio >= minMeanHeatRatioValueToPlot);
+```
+
+```js
+const maxMeanHeatRatioValueToPlot = view(Inputs.range([0, 10], { step: 0.1, value: 2, label: "Max mean heat ratio value" }));
+```
+
+```js
+const minMeanHeatRatioValueToPlot = view(Inputs.range([-10, 1], { step: 0.1, value: 0.7, label: "Min mean heat ratio value" }));
+```
+
+```js
+display(
+  Plot.plot({
+    x: {
+      grid: true,
+    },
+    y: {
+      grid: true,
+    },
+    color: {
+      legend: true,
+    },
+    width,
+    marginRight: 150,
+    marks: [
+      Plot.line(filteredCombinedHeatRatioData, {
+        x: 'date',
+        y: 'meanHeatRatio',
+        stroke: 'nodeId',
+        tip: true,
+      }),
+    ],
+  })
+);
 ```
 
 ```js
